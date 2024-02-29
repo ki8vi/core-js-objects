@@ -33,8 +33,22 @@ function shallowCopy(obj) {
  *    mergeObjects([{a: 1, b: 2}, {b: 3, c: 5}]) => {a: 1, b: 5, c: 5}
  *    mergeObjects([]) => {}
  */
-function mergeObjects(/* objects */) {
-  throw new Error('Not implemented');
+function mergeObjects(objects) {
+  const outputObj = {};
+  const inputArr = Object.entries(objects).flat();
+  for (let i = 0; i < inputArr.length; i += 1) {
+    if (inputArr[i] instanceof Object) {
+      const keysObj = Object.keys(inputArr[i]);
+      for (let el = 0; el < keysObj.length; el += 1) {
+        if (keysObj[el] in outputObj) {
+          outputObj[keysObj[el]] += inputArr[i][keysObj[el]];
+        } else {
+          outputObj[keysObj[el]] = inputArr[i][keysObj[el]];
+        }
+      }
+    }
+  }
+  return outputObj;
 }
 
 /**
