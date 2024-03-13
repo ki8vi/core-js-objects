@@ -151,7 +151,7 @@ function makeWord(lettersObject) {
 
 /**
  * There is a queue for tickets to a popular movie.
- * The ticket seller sells one ticket at a time strictly in order and give the change.
+ * The ticket seller sells one ticket at a time strictly in ascend and give the change.
  * The ticket costs 25. Customers pay with bills of 25, 50, or 100.
  * Initially the seller has no money for change.
  * Return true if the seller can sell tickets, false otherwise
@@ -232,7 +232,7 @@ function fromJSON(proto, json) {
 
 /**
  * Sorts the specified array by country name first and city name
- * (if countries are equal) in ascending order.
+ * (if countries are equal) in ascending ascend.
  *
  * @param {array} arr
  * @return {array}
@@ -317,89 +317,152 @@ function group(array, keySelector, valueSelector) {
   return mapper;
 }
 
-/**
- * Css selectors builder
- *
- * Each complex selector can consists of type, id, class, attribute, pseudo-class
- * and pseudo-element selectors:
- *
- *    element#id.class[attr]:pseudoClass::pseudoElement
- *              \----/\----/\----------/
- *              Can be several occurrences
- *
- * All types of selectors can be combined using the combination ' ','+','~','>' .
- *
- * The task is to design a single class, independent classes or classes hierarchy
- * and implement the functionality to build the css selectors using the provided cssSelectorBuilder.
- * Each selector should have the stringify() method to output the string representation
- * according to css specification.
- *
- * Provided cssSelectorBuilder should be used as facade only to create your own classes,
- * for example the first method of cssSelectorBuilder can be like this:
- *   element: function(value) {
- *       return new MySuperBaseElementSelector(...)...
- *   },
- *
- * The design of class(es) is totally up to you, but try to make it as simple,
- * clear and readable as possible.
- *
- * @example
- *
- *  const builder = cssSelectorBuilder;
- *
- *  builder.id('main').class('container').class('editable').stringify()
- *    => '#main.container.editable'
- *
- *  builder.element('a').attr('href$=".png"').pseudoClass('focus').stringify()
- *    => 'a[href$=".png"]:focus'
- *
- *  builder.combine(
- *      builder.element('div').id('main').class('container').class('draggable'),
- *      '+',
- *      builder.combine(
- *          builder.element('table').id('data'),
- *          '~',
- *           builder.combine(
- *               builder.element('tr').pseudoClass('nth-of-type(even)'),
- *               ' ',
- *               builder.element('td').pseudoClass('nth-of-type(even)')
- *           )
- *      )
- *  ).stringify()
- *    => 'div#main.container.draggable + table#data ~ tr:nth-of-type(even)   td:nth-of-type(even)'
- *
- *  For more examples see unit tests.
- */
+// /**
+//  * Css selectors builder
+//  *
+//  * Each complex selector can consists of type, id, class, attribute, pseudo-class
+//  * and pseudo-element selectors:
+//  *
+//  *    element#id.class[attr]:pseudoClass::pseudoElement
+//  *              \----/\----/\----------/
+//  *              Can be several occurrences
+//  *
+//  * All types of selectors can be combined using the combination ' ','+','~','>' .
+//  *
+//  * The task is to design a single class, independent classes or classes hierarchy
+//  * and implement the functionality to build the css selectors using the provided cssSelectorBuilder.
+//  * Each selector should have the stringify() method to output the string representation
+//  * according to css specification.
+//  *
+//  * Provided cssSelectorBuilder should be used as facade only to create your own classes,
+//  * for example the first method of cssSelectorBuilder can be like this:
+//  *   element: function(value) {
+//  *       return new MySuperBaseElementSelector(...)...
+//  *   },
+//  *
+//  * The design of class(es) is totally up to you, but try to make it as simple,
+//  * clear and readable as possible.
+//  *
+//  * @example
+//  *
+//  *  const builder = cssSelectorBuilder;
+//  *
+//  *  builder.id('main').class('container').class('editable').stringify()
+//  *    => '#main.container.editable'
+//  *
+//  *  builder.element('a').attr('href$=".png"').pseudoClass('focus').stringify()
+//  *    => 'a[href$=".png"]:focus'
+//  *
+//  *  builder.combine(
+//  *      builder.element('div').id('main').class('container').class('draggable'),
+//  *      '+',
+//  *      builder.combine(
+//  *          builder.element('table').id('data'),
+//  *          '~',
+//  *           builder.combine(
+//  *               builder.element('tr').pseudoClass('nth-of-type(even)'),
+//  *               ' ',
+//  *               builder.element('td').pseudoClass('nth-of-type(even)')
+//  *           )
+//  *      )
+//  *  ).stringify()
+//  *    => 'div#main.container.draggable + table#data ~ tr:nth-of-type(even)   td:nth-of-type(even)'
+//  *
+//  *  For more examples see unit tests.
+//  */
 
-const cssSelectorBuilder = {
-  element(/* value */) {
-    throw new Error('Not implemented');
-  },
+function CssBuilder() {
+  this.data = {
+    buildedSelector: '',
+    ascend: 0,
+    isElem: null,
+    isId: null,
+    isPeseudoEl: null,
+    isPseudoCl: null,
+  };
+}
 
-  id(/* value */) {
-    throw new Error('Not implemented');
-  },
-
-  class(/* value */) {
-    throw new Error('Not implemented');
-  },
-
-  attr(/* value */) {
-    throw new Error('Not implemented');
-  },
-
-  pseudoClass(/* value */) {
-    throw new Error('Not implemented');
-  },
-
-  pseudoElement(/* value */) {
-    throw new Error('Not implemented');
-  },
-
-  combine(/* selector1, combinator, selector2 */) {
-    throw new Error('Not implemented');
-  },
+CssBuilder.prototype.stringify = function helper() {
+  const output = this.data.buildedSelector;
+  this.data.buildedSelector = '';
+  return output;
 };
+
+CssBuilder.prototype.occurChecker = function helper(isElem, value, ascend) {
+  let isValid;
+  if (isElem === 'elem') {
+    isValid = this.data.isElem;
+  } else if (isElem === 'id') {
+    isValid = this.data.isId;
+  } else if (isElem === 'pseudoEl') {
+    isValid = this.data.isPeseudoEl;
+  } else if (isElem === 'pseudoCl') {
+    isValid = this.data.isPseudoCl;
+  } else {
+    isValid = null;
+  }
+  if (isValid) {
+    throw new Error(
+      'Element, id and pseudo-element should not occur more then one time inside the selector'
+    );
+  }
+  this.ascendChecker(ascend);
+  const newInstance = Object.create(CssBuilder.prototype);
+  newInstance.data = { ...this.data };
+  newInstance.data.buildedSelector = this.data.buildedSelector + value;
+  newInstance.data.ascend = ascend;
+  return newInstance;
+};
+
+CssBuilder.prototype.ascendChecker = function helper(currAscend) {
+  if (this.data.ascend > currAscend)
+    throw new Error(
+      'Selector parts should be arranged in the following order: element, id, class, attribute, pseudo-class, pseudo-element'
+    );
+};
+
+CssBuilder.prototype.element = function helper(value) {
+  const newInstance = this.occurChecker('elem', value, 1);
+  newInstance.data.isElem = true;
+  return newInstance;
+};
+
+CssBuilder.prototype.id = function helper(value) {
+  const newInstance = this.occurChecker('id', `#${value}`, 2);
+  newInstance.data.isId = true;
+  return newInstance;
+};
+
+CssBuilder.prototype.class = function helper(value) {
+  return this.occurChecker('class', `.${value}`, 3);
+};
+
+CssBuilder.prototype.attr = function helper(value) {
+  return this.occurChecker('attr', `[${value}]`, 4);
+};
+
+CssBuilder.prototype.pseudoClass = function helper(value) {
+  return this.occurChecker('pseudoCl', `:${value}`, 5);
+};
+
+CssBuilder.prototype.pseudoElement = function helper(value) {
+  const instanceChecked = this.occurChecker('pseudoEl', `::${value}`, 6);
+  instanceChecked.data.isPeseudoEl = true;
+  return instanceChecked;
+};
+
+CssBuilder.prototype.combine = function helper(
+  selector1,
+  combinator,
+  selector2
+) {
+  const newInstnce = Object.create(CssBuilder.prototype);
+  newInstnce.data = { ...this.data };
+  newInstnce.data.buildedSelector = `${selector1.stringify()} ${combinator} ${selector2.stringify()}`;
+  return newInstnce;
+};
+
+const cssSelectorBuilder = new CssBuilder();
 
 module.exports = {
   shallowCopy,
