@@ -389,19 +389,19 @@ CssBuilder.prototype.stringify = function helper() {
 };
 
 CssBuilder.prototype.occurChecker = function helper(isElem, value, ascend) {
-  let isValid;
+  let isInvalid;
   if (isElem === 'elem') {
-    isValid = this.data.isElem;
+    isInvalid = this.data.isElem;
   } else if (isElem === 'id') {
-    isValid = this.data.isId;
+    isInvalid = this.data.isId;
   } else if (isElem === 'pseudoEl') {
-    isValid = this.data.isPeseudoEl;
+    isInvalid = this.data.isPeseudoEl;
   } else if (isElem === 'pseudoCl') {
-    isValid = this.data.isPseudoCl;
+    isInvalid = this.data.isPseudoCl;
   } else {
-    isValid = null;
+    isInvalid = null;
   }
-  if (isValid) {
+  if (isInvalid) {
     throw new Error(
       'Element, id and pseudo-element should not occur more then one time inside the selector'
     );
